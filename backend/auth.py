@@ -12,8 +12,8 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # Hardcoded demo users — replace with DB lookup in production
 DEMO_USERS = {
-    "admin": {"password": "admin123", "role": "admin"},
-    "learner": {"password": "learn123", "role": "learner"},
+    "admin": {"password_hash": pwd_context.hash("admin123"), "role": "admin"},
+    "learner": {"password_hash": pwd_context.hash("learn123"), "role": "learner"},
 }
 
 
@@ -38,6 +38,6 @@ def verify_token(token: str) -> dict:
 
 def authenticate_user(username: str, password: str) -> dict | None:
     user = DEMO_USERS.get(username)
-    if user and user["password"] == password:
+    if user and pwd_context.verify(password, user["password_hash"]):
         return {"username": username, "role": user["role"]}
     return None

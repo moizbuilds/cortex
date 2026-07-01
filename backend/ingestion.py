@@ -1,4 +1,3 @@
-import re
 from docx import Document
 import io
 from backend.qdrant_client import ensure_collection, upsert_chunks

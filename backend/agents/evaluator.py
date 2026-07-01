@@ -10,7 +10,13 @@ from backend.db import save_eval_result
 
 anthropic_client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 groq_client = Groq(api_key=os.environ["GROQ_API_KEY"])
-embedder = SentenceTransformer("all-MiniLM-L6-v2")
+_embedder = None
+
+def _get_embedder() -> SentenceTransformer:
+    global _embedder
+    if _embedder is None:
+        _embedder = SentenceTransformer("all-MiniLM-L6-v2")
+    return _embedder
 
 CLAUDE_MODEL = "claude-haiku-4-5-20251001"
 GROQ_MODEL = "llama3-8b-8192"
@@ -22,12 +28,13 @@ def _rag_prompt(question: str, chunks: list[dict]) -> str:
     return f"Context:\n{context}\n\nQuestion: {question}"
 
 def score_answer(gold: str, response: str, chunks: list[str]) -> tuple[float, float]:
+    embedder = _get_embedder()
     gold_vec = embedder.encode(gold, convert_to_tensor=True)
     resp_vec = embedder.encode(response, convert_to_tensor=True)
     accuracy = float(util.cos_sim(gold_vec, resp_vec)[0][0])
     accuracy = max(0.0, min(1.0, accuracy))
 
-    chunk_vecs = embedder.encode(chunks, convert_to_tensor=True)
+    chunk_vecs = _get_embedder().encode(chunks, convert_to_tensor=True)
     if len(chunk_vecs.shape) == 1:
         chunk_vecs = chunk_vecs.unsqueeze(0)
     groundedness_scores = util.cos_sim(resp_vec, chunk_vecs)[0]
