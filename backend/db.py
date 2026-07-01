@@ -4,7 +4,7 @@ import psycopg2
 import psycopg2.extras
 from backend.models import EvalResult
 
-DATABASE_URL = os.environ.get("NEON_DATABASE_URL")
+DATABASE_URL = os.environ["NEON_DATABASE_URL"]
 
 
 @contextmanager
