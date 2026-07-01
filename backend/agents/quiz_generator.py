@@ -24,6 +24,13 @@ def generate_quiz(topic: str, num_questions: int = 5) -> list[QuizQuestion]:
         system=SYSTEM_PROMPT,
         messages=[{"role": "user", "content": user_prompt}],
     )
-    raw = message.content[0].text
-    data = json.loads(raw)
+    raw = message.content[0].text.strip()
+    if raw.startswith("```"):
+        raw = raw.split("```")[1]
+        if raw.startswith("json"):
+            raw = raw[4:]
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError:
+        return []
     return [QuizQuestion(**q) for q in data[:num_questions]]

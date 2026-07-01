@@ -5,6 +5,8 @@ from backend.qdrant_client import ensure_collection, upsert_chunks
 from backend.models import IngestionStatus
 
 def chunk_text(text: str, chunk_size: int = 512, overlap: int = 50) -> list[str]:
+    if overlap >= chunk_size:
+        overlap = 0
     words = text.split()
     if len(words) <= chunk_size:
         return [text]

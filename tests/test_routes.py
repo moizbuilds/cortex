@@ -25,7 +25,7 @@ def test_login_fail():
     assert r.status_code == 401
 
 def test_chat_requires_auth():
-    r = client.post("/chat", json={"question": "What is HSSE?"})
+    r = client.post("/chat", json={"user_input": "What is HSSE?"})
     assert r.status_code == 403
 
 def test_ingest_requires_admin():

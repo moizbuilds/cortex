@@ -7,7 +7,8 @@ from backend.auth import authenticate_user, create_token
 from backend.deps import get_current_user, require_admin
 from backend.agents.orchestrator import route
 from backend.ingestion import ingest_docx
-from backend.db import get_eval_results, save_eval_result
+from backend.db import get_eval_results
+from pathlib import Path
 import json
 
 app = FastAPI(title="Cortex API")
@@ -46,7 +47,8 @@ async def ingest(file: UploadFile = File(...), user: dict = Depends(require_admi
 
 @app.post("/eval/run")
 def eval_run(user: dict = Depends(require_admin)):
-    with open("data/gold_qa.json") as f:
+    gold_qa_path = Path(__file__).parent.parent / "data" / "gold_qa.json"
+    with open(gold_qa_path) as f:
         gold_qa = json.load(f)
     from backend.agents.evaluator import run_evaluation
     results = run_evaluation(gold_qa)

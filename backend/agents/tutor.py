@@ -24,8 +24,15 @@ def answer_question(question: str) -> TutorResponse:
         system=SYSTEM_PROMPT,
         messages=[{"role": "user", "content": user_prompt}],
     )
-    raw = message.content[0].text
-    data = json.loads(raw)
+    raw = message.content[0].text.strip()
+    if raw.startswith("```"):
+        raw = raw.split("```")[1]
+        if raw.startswith("json"):
+            raw = raw[4:]
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError:
+        return TutorResponse(answer="I encountered an error processing the response.", citations=[], confidence=0.0)
     return TutorResponse(
         answer=data["answer"],
         citations=[Citation(**c) for c in data.get("citations", [])],
